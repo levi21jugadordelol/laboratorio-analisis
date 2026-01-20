@@ -1,10 +1,14 @@
 package com.laboratorio.analisis_clinico.personalMedico.domain;
 
+import com.laboratorio.analisis_clinico.orden.domain.Orden;
 import com.laboratorio.analisis_clinico.personalMedico.domain.enume.EstadoPersonalMedico;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "personal_medico")
@@ -28,6 +32,18 @@ public class PersonalMedico {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 10)
     private EstadoPersonalMedico estadoPersonalMedico;
+
+    @OneToMany
+            (mappedBy = "personalMedico",
+            fetch = FetchType.LAZY,
+            cascade = CascadeType.ALL,
+            orphanRemoval = true)
+    private Set<Orden> listaOrdenes = new HashSet<>();
+
+    public void addOrdenes(Orden orden){
+        this.listaOrdenes.add(orden);
+        orden.asignarPersonal(this);
+    }
 
     // =========================
     // CONSTRUCTOR DE DOMINIO

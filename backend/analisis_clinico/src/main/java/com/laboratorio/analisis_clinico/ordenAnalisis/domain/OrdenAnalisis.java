@@ -1,8 +1,11 @@
 package com.laboratorio.analisis_clinico.ordenAnalisis.domain;
 
 
+import com.laboratorio.analisis_clinico.formatoAnalisis.domain.FormatoAnalisis;
+import com.laboratorio.analisis_clinico.orden.domain.Orden;
 import com.laboratorio.analisis_clinico.ordenAnalisis.domain.enume.EstadoOrdenMedicaAnalisis;
 import com.laboratorio.analisis_clinico.ordenAnalisis.domain.enume.Prioridad;
+import com.laboratorio.analisis_clinico.resultado.domain.Resultado;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -20,17 +23,7 @@ public class OrdenAnalisis {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idOrdenAnalisis;
 
-    /**
-     * Orden a la que pertenece este análisis.
-     */
-    @Column(nullable = false)
-    private Long ordenId;
 
-    /**
-     * Formato con el que se ejecuta el análisis.
-     */
-    @Column(nullable = false)
-    private Long formatoId;
 
     /**
      * Fecha en que el análisis empieza a ejecutarse.
@@ -46,24 +39,70 @@ public class OrdenAnalisis {
     @Column(nullable = false, length = 10)
     private Prioridad prioridad;
 
+    @ManyToOne
+    @JoinColumn(name="orden_id",nullable = false)
+    private Orden orden;
+
+    public void asignarOrden(Orden orden) {
+        if (this.orden != null) {
+            throw new IllegalStateException(
+                    "El análisis ya está asociado a una orden."
+            );
+        }
+        if (orden == null) {
+            throw new IllegalArgumentException(
+                    "El análisis debe pertenecer a una orden."
+            );
+        }
+        this.orden = orden;
+    }
+
+    @ManyToOne
+    @JoinColumn(name="formato_id",nullable = false)
+    private FormatoAnalisis formatoAnalisis;
+
+    public void asignarFormato(FormatoAnalisis formatoAnalisis){
+         if(this.formatoAnalisis != null){
+             throw new IllegalStateException(
+                     "El análisis ya está asociado a una formato."
+             );
+         }
+
+        if(formatoAnalisis == null){
+            throw new IllegalStateException(
+                    "El análisis debe pertenecer a un formato."
+            );
+        }
+
+        this.formatoAnalisis=formatoAnalisis;
+    }
+
+    @OneToOne(mappedBy = "ordenAnalisis", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Resultado resultado;
+
+
+    public void asignarResultado(Resultado resultado) {
+        if (resultado == null) {
+            throw new IllegalArgumentException("El resultado no puede ser nulo.");
+        }
+        if (this.resultado != null) {
+            throw new IllegalStateException("La orden ya tiene un resultado.");
+        }
+        this.resultado = resultado;
+        resultado.asignarOrdenAnalisis(this);
+    }
+
+
     // =========================
     // CONSTRUCTOR DE DOMINIO
     // =========================
 
-    public OrdenAnalisis(
-            Long ordenId,
-            Long formatoId,
-            Prioridad prioridad
-    ) {
-        validarOrden(ordenId);
-        validarFormato(formatoId);
+    public OrdenAnalisis(Prioridad prioridad) {
         validarPrioridad(prioridad);
-
-        this.ordenId = ordenId;
-        this.formatoId = formatoId;
         this.prioridad = prioridad;
-        this.estado = EstadoOrdenMedicaAnalisis.PENDIENTE; // regla de creación
+        this.estado = EstadoOrdenMedicaAnalisis.PENDIENTE;
     }
+
 
     // =========================
     // REGLAS DE DOMINIO
@@ -156,21 +195,20 @@ public class OrdenAnalisis {
         this.fechaRealizacion = nuevaFecha;
     }
 
-    public void cambiarFormato(Long nuevoFormatoId) {
+    public void cambiarFormato(FormatoAnalisis nuevoFormato) {
         if (this.estado != EstadoOrdenMedicaAnalisis.PENDIENTE) {
             throw new IllegalStateException(
                     "Solo se puede cambiar el formato de un análisis pendiente."
             );
         }
-
-        if (nuevoFormatoId == null) {
+        if (nuevoFormato == null) {
             throw new IllegalArgumentException(
                     "El nuevo formato es obligatorio."
             );
         }
-
-        this.formatoId = nuevoFormatoId;
+        this.formatoAnalisis = nuevoFormato;
     }
+
 
 
 
@@ -178,21 +216,6 @@ public class OrdenAnalisis {
     // INVARIANTES INTERNAS
     // =========================
 
-    private void validarOrden(Long ordenId) {
-        if (ordenId == null) {
-            throw new IllegalArgumentException(
-                    "El análisis debe estar asociado a una orden."
-            );
-        }
-    }
-
-    private void validarFormato(Long formatoId) {
-        if (formatoId == null) {
-            throw new IllegalArgumentException(
-                    "El análisis debe tener un formato asociado."
-            );
-        }
-    }
 
     private void validarPrioridad(Prioridad prioridad) {
         if (prioridad == null) {

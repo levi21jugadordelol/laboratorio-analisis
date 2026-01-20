@@ -1,11 +1,18 @@
 package com.laboratorio.analisis_clinico.areaMedica.domain;
 
+import com.laboratorio.analisis_clinico.analisis.domain.Analisis;
 import com.laboratorio.analisis_clinico.areaMedica.domain.enume.EstadoAreaMedica;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 
 @Entity
 @Table(name = "area_medica")
@@ -27,6 +34,20 @@ public class AreaMedica {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 10)
     private EstadoAreaMedica estadoAreaMedica;
+
+     @OneToMany(
+             mappedBy = "areaMedica",
+     fetch = FetchType.LAZY,
+     cascade = CascadeType.ALL,
+     orphanRemoval = true)
+     private Set<Analisis> analisis = new HashSet<>();
+
+
+    public void addAnalisis(Analisis analisis) {
+        this.analisis.add(analisis);
+        analisis.setAreaMedica(this); // requiere setter protegido
+    }
+
 
     /**
      * Constructor de dominio: asegura invariantes desde el nacimiento.

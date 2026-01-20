@@ -1,6 +1,7 @@
 package com.laboratorio.analisis_clinico.paciente.domain;
 
 
+import com.laboratorio.analisis_clinico.orden.domain.Orden;
 import com.laboratorio.analisis_clinico.paciente.domain.enume.Sexo;
 import com.laboratorio.analisis_clinico.paciente.domain.enume.TipoPaciente;
 import jakarta.persistence.*;
@@ -9,6 +10,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "paciente")
@@ -54,6 +57,19 @@ public class Paciente {
 
     @Column(length = 20)
     private String telefono;
+
+    @OneToMany
+            (mappedBy = "paciente",
+            fetch = FetchType.LAZY,
+            cascade = CascadeType.ALL,
+            orphanRemoval = true)
+    private Set<Orden> listaOrdenes = new HashSet<>();
+
+    public void addOrdenes(Orden orden){
+        this.listaOrdenes.add(orden);
+        orden.asignarPaciente(this);
+
+    }
 
     // =========================
     // CONSTRUCTOR DE DOMINIO

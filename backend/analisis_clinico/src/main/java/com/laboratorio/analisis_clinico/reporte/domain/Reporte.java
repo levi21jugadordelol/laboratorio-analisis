@@ -1,6 +1,7 @@
 package com.laboratorio.analisis_clinico.reporte.domain;
 
 import com.laboratorio.analisis_clinico.reporte.domain.enume.TipoReporte;
+import com.laboratorio.analisis_clinico.usuario.domain.Usuario;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -51,8 +52,29 @@ public class Reporte {
     /**
      * Usuario responsable de la generación.
      */
-    @Column(nullable = false)
+    @Column(name = "created_by", nullable = false, updatable = false)
     private Long createdByUsuario;
+
+
+    @ManyToOne (fetch = FetchType.LAZY)
+    @JoinColumn(name = "usuario_id",nullable = false)
+    private Usuario usuario;
+
+
+    public void asignarUsuario(Usuario usuario) {
+        if (usuario == null) {
+            throw new IllegalArgumentException(
+                    "El usuario no puede ser nulo."
+            );
+        }
+        if (this.usuario != null) {
+            throw new IllegalStateException(
+                    "El reporte ya tiene un usuario asignado."
+            );
+        }
+        this.usuario = usuario;
+    }
+
 
     // =========================
     // CONSTRUCTOR DE DOMINIO
@@ -121,5 +143,7 @@ public class Reporte {
             );
         }
     }
+
+
 }
 

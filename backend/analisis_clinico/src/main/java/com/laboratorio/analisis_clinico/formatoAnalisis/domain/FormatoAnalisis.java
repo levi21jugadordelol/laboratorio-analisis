@@ -1,14 +1,19 @@
 package com.laboratorio.analisis_clinico.formatoAnalisis.domain;
 
 
+import com.laboratorio.analisis_clinico.analisis.domain.Analisis;
 import com.laboratorio.analisis_clinico.formatoAnalisis.domain.enume.EstadoFormato;
+import com.laboratorio.analisis_clinico.ordenAnalisis.domain.OrdenAnalisis;
+import com.laboratorio.analisis_clinico.usuario.domain.Usuario;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 @Entity
 @Table(name = "formato_analisis")
@@ -20,12 +25,7 @@ public class FormatoAnalisis {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idFormatoAnalisis;
 
-    /**
-     * A nivel de dominio: un formato SIEMPRE pertenece a un análisis.
-     * La validación de existencia del análisis se hace fuera.
-     */
-    @Column(nullable = false)
-    private Long analisisId;
+
 
     @Column(nullable = false, length = 150)
     private String nombreFormato;
@@ -50,7 +50,7 @@ public class FormatoAnalisis {
     /**
      * Usuario responsable de la creación.
      */
-    @Column(nullable = false)
+    @Column(name = "created_by", nullable = false,updatable = false)
     private Long createdByUsuario;
 
     @Column(nullable = false)
@@ -60,30 +60,63 @@ public class FormatoAnalisis {
     @Column(nullable = false, length = 15)
     private EstadoFormato estadoFormato;
 
+
+    @ManyToOne
+    @JoinColumn(name="analisis_id",nullable = false)
+    private Analisis analisis;
+
+    @OneToMany
+            (mappedBy = "formatoAnalisis",
+            fetch = FetchType.LAZY,
+            cascade = CascadeType.ALL,
+            orphanRemoval = true)
+    private Set<OrdenAnalisis> listaOrdenes = new HashSet<>();
+
+    public void addOrdenAnalisis(OrdenAnalisis ordenAnalisis){
+        this.listaOrdenes.add(ordenAnalisis);
+        ordenAnalisis.asignarFormato(this);
+    }
+
+    @ManyToOne
+    @JoinColumn(name="usuario_id")
+    private Usuario usuario;
+
+    public void asignarUsuario(Usuario usuario) {
+        if (usuario == null) {
+            throw new IllegalArgumentException(
+                    "El usuario no puede ser nulo."
+            );
+        }
+        if (this.usuario != null) {
+            throw new IllegalStateException(
+                    "La orden ya está asociada a un usuario."
+            );
+        }
+        this.usuario = usuario;
+    }
+
     // =========================
     // CONSTRUCTOR DE DOMINIO
     // =========================
 
     public FormatoAnalisis(
-            Long analisisId,
             String nombreFormato,
             String descripcion,
             Map<String, Object> estructuraFormato,
             Long createdByUsuario
     ) {
-        validarAnalisis(analisisId);
         setNombreFormato(nombreFormato);
         validarEstructura(estructuraFormato);
         validarUsuario(createdByUsuario);
 
-        this.analisisId = analisisId;
         this.descripcion = normalizar(descripcion);
         this.estructuraFormato = estructuraFormato;
         this.createdByUsuario = createdByUsuario;
-        this.version = 1.0; // regla de creación
-        this.estadoFormato = EstadoFormato.VIGENTE; // regla de creación
+        this.version = 1.0;
+        this.estadoFormato = EstadoFormato.VIGENTE;
         this.fechaCreacion = LocalDateTime.now();
     }
+
 
     // =========================
     // REGLAS DE DOMINIO
@@ -122,13 +155,30 @@ public class FormatoAnalisis {
         this.marcarComoObsoleto();
 
         return new FormatoAnalisis(
-                this.analisisId,
+
                 this.nombreFormato,
                 this.descripcion,
                 nuevaEstructura,
                 usuarioId
         ).conVersion(this.version + 1);
     }
+
+    public void asignarAnalisis(Analisis analisis) {
+        if (this.analisis != null) {
+            throw new IllegalStateException(
+                    "El formato ya está asociado a un análisis."
+            );
+        }
+        if (analisis == null) {
+            throw new IllegalArgumentException(
+                    "El formato debe pertenecer a un análisis."
+            );
+        }
+        this.analisis = analisis;
+    }
+
+
+
 
     // =========================
     // CONSULTAS DE DOMINIO
@@ -164,13 +214,6 @@ public class FormatoAnalisis {
         this.nombreFormato = n;
     }
 
-    private void validarAnalisis(Long analisisId) {
-        if (analisisId == null) {
-            throw new IllegalArgumentException(
-                    "El formato debe estar asociado a un análisis."
-            );
-        }
-    }
 
     private void validarEstructura(Map<String, Object> estructura) {
         if (estructura == null || estructura.isEmpty()) {
@@ -201,5 +244,7 @@ public class FormatoAnalisis {
     private String normalizar(String valor) {
         return (valor == null) ? null : valor.trim();
     }
+
+
 }
 

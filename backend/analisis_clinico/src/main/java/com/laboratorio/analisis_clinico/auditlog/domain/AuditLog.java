@@ -2,6 +2,7 @@ package com.laboratorio.analisis_clinico.auditlog.domain;
 
 
 import com.laboratorio.analisis_clinico.auditlog.domain.enume.ActionAuditlog;
+import com.laboratorio.analisis_clinico.usuario.domain.Usuario;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -30,8 +31,9 @@ public class AuditLog {
     @Column(nullable = false, length = 10)
     private ActionAuditlog action;
 
-    @Column(nullable = false)
-    private Long userId;
+    @Column(name = "created_by", nullable = false, updatable = false)
+    private Long createdByUsuario;
+
 
     @Column(nullable = false)
     private LocalDateTime fecha;
@@ -46,6 +48,21 @@ public class AuditLog {
     @Column(length = 255)
     private String reason;
 
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "usuario_id")
+    private Usuario usuario;
+
+    public void asignarUsuario(Usuario usuario) {
+        if(usuario == null){
+            throw new IllegalArgumentException("usuario no puede ser nullo");
+        }
+        if(this.usuario != null){
+            throw  new IllegalStateException("auditoria ya tiene usuario");
+        }
+        this.usuario =usuario;
+    }
+
     // =========================
     // CONSTRUCTOR DE DOMINIO
     // =========================
@@ -54,20 +71,20 @@ public class AuditLog {
             String entityName,
             Long entityId,
             ActionAuditlog action,
-            Long userId,
+            Long createdByUsuario,
             Map<String, Object> diffJson,
             String reason
     ) {
         validarEntidad(entityName, entityId);
         validarAccion(action);
-        validarUsuario(userId);
+        validarUsuario(createdByUsuario);
         validarDiffSegunAccion(action, diffJson);
         validarMotivoSegunAccion(action, reason);
 
         this.entityName = entityName.trim();
         this.entityId = entityId;
         this.action = action;
-        this.userId = userId;
+        this.createdByUsuario = createdByUsuario;
         this.diffJson = diffJson;
         this.reason = normalizar(reason);
         this.fecha = LocalDateTime.now(); // regla de creación
@@ -98,8 +115,8 @@ public class AuditLog {
         }
     }
 
-    private void validarUsuario(Long userId) {
-        if (userId == null) {
+    private void validarUsuario(Long createdByUsuario) {
+        if (createdByUsuario == null) {
             throw new IllegalArgumentException(
                     "El usuario responsable de la acción es obligatorio."
             );
@@ -126,5 +143,7 @@ public class AuditLog {
     private String normalizar(String valor) {
         return (valor == null) ? null : valor.trim();
     }
+
+
 }
 

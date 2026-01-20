@@ -1,5 +1,7 @@
 package com.laboratorio.analisis_clinico.resultado.domain;
 
+import com.laboratorio.analisis_clinico.ordenAnalisis.domain.OrdenAnalisis;
+import com.laboratorio.analisis_clinico.usuario.domain.Usuario;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -18,11 +20,6 @@ public class Resultado {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idResultado;
 
-    /**
-     * Resultado siempre pertenece a un análisis ejecutado.
-     */
-    @Column(nullable = false)
-    private Long ordenAnalisisId;
 
     /**
      * Contenido clínico del resultado.
@@ -46,7 +43,7 @@ public class Resultado {
     /**
      * Usuario responsable de la creación/modificación.
      */
-    @Column(nullable = false)
+    @Column(name = "created_by", nullable = false, updatable = false)
     private Long createdByUsuario;
 
     /**
@@ -61,28 +58,62 @@ public class Resultado {
     @Column(nullable = false)
     private boolean validado;
 
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "orden_analisis_id", nullable = false, unique = true)
+    private OrdenAnalisis ordenAnalisis;
+
+    public void asignarOrdenAnalisis(OrdenAnalisis ordenAnalisis) {
+        if (this.ordenAnalisis != null) {
+            throw new IllegalStateException(
+                    "El resultado ya está asociado a una orden."
+            );
+        }
+        this.ordenAnalisis = ordenAnalisis;
+    }
+
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "usuario_id",nullable = false)
+    private Usuario usuario;
+
+    public void asignarUsuario(Usuario usuario) {
+        if(usuario == null){
+          throw new  IllegalArgumentException("el resultado no puede ser nullo");
+        }
+        if(this.usuario != null){
+            throw new IllegalStateException(
+                    "La resultado ya está asociada a un usuario."
+            );
+        }
+        this.usuario=usuario;
+    }
+
+
+
+
     // =========================
     // CONSTRUCTOR DE DOMINIO
     // =========================
 
     public Resultado(
-            Long ordenAnalisisId,
+            OrdenAnalisis ordenAnalisis,
             Map<String, Object> resultadoJson,
             String observacion,
             Long createdByUsuario
     ) {
-        validarOrdenAnalisis(ordenAnalisisId);
+        validarOrdenAnalisis(ordenAnalisis);
         validarResultado(resultadoJson);
         validarUsuario(createdByUsuario);
 
-        this.ordenAnalisisId = ordenAnalisisId;
+        this.ordenAnalisis = ordenAnalisis;
         this.resultadoJson = resultadoJson;
         this.observacion = normalizar(observacion);
         this.createdByUsuario = createdByUsuario;
-        this.fechaRegistro = LocalDateTime.now(); // regla de creación
+        this.fechaRegistro = LocalDateTime.now();
         this.version = 1.0;
-        this.validado = false; // regla de creación
+        this.validado = false;
     }
+
 
     // =========================
     // REGLAS DE DOMINIO
@@ -121,12 +152,13 @@ public class Resultado {
         validarUsuario(usuarioId);
 
         return new Resultado(
-                this.ordenAnalisisId,
+                this.ordenAnalisis,
                 nuevoResultado,
                 motivo,
                 usuarioId
         ).conVersion(this.version + 1);
     }
+
 
     // =========================
     // CONSULTAS DE DOMINIO
@@ -140,13 +172,14 @@ public class Resultado {
     // INVARIANTES INTERNAS
     // =========================
 
-    private void validarOrdenAnalisis(Long ordenAnalisisId) {
-        if (ordenAnalisisId == null) {
+    private void validarOrdenAnalisis(OrdenAnalisis ordenAnalisis) {
+        if (ordenAnalisis == null) {
             throw new IllegalArgumentException(
-                    "El resultado debe estar asociado a un análisis."
+                    "El resultado debe estar asociado a una orden de análisis."
             );
         }
     }
+
 
     private void validarResultado(Map<String, Object> resultado) {
         if (resultado == null || resultado.isEmpty()) {
@@ -180,5 +213,7 @@ public class Resultado {
     private String normalizar(String valor) {
         return (valor == null) ? null : valor.trim();
     }
+
+
 }
 

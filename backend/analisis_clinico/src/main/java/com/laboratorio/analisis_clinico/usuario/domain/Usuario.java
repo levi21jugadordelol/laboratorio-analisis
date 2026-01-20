@@ -1,5 +1,10 @@
 package com.laboratorio.analisis_clinico.usuario.domain;
 
+import com.laboratorio.analisis_clinico.auditlog.domain.AuditLog;
+import com.laboratorio.analisis_clinico.formatoAnalisis.domain.FormatoAnalisis;
+import com.laboratorio.analisis_clinico.orden.domain.Orden;
+import com.laboratorio.analisis_clinico.reporte.domain.Reporte;
+import com.laboratorio.analisis_clinico.resultado.domain.Resultado;
 import com.laboratorio.analisis_clinico.usuario.domain.enume.EstadoUsuario;
 import com.laboratorio.analisis_clinico.usuario.domain.enume.RolUsuario;
 import jakarta.persistence.*;
@@ -8,6 +13,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "usuario")
@@ -35,6 +42,84 @@ public class Usuario {
 
     @Column(nullable = false)
     private LocalDateTime fechaCreacion;
+
+    @OneToMany
+            (mappedBy = "usuario",
+            fetch = FetchType.LAZY,
+            cascade = { CascadeType.PERSIST, CascadeType.MERGE },
+            orphanRemoval = true)
+    private Set<Orden> listaOrden = new HashSet<>();
+
+    public void agregarOrden(Orden orden) {
+        if (orden == null) {
+            throw new IllegalArgumentException("La orden no puede ser nula.");
+        }
+        this.listaOrden.add(orden);
+        orden.asignarUsuario(this);
+    }
+
+    @OneToMany
+            (mappedBy = "usuario",
+            fetch = FetchType.LAZY,
+                    cascade = { CascadeType.PERSIST, CascadeType.MERGE }
+                    ,
+            orphanRemoval = true)
+    private Set<FormatoAnalisis> listaFormatoAnalisis = new HashSet<>();
+
+    public void agregarFormatoAnalisis(FormatoAnalisis formatoAnalisis){
+        if(formatoAnalisis == null){
+            throw new IllegalArgumentException("el formato no puede ser nula");
+        }
+        this.listaFormatoAnalisis.add(formatoAnalisis);
+        formatoAnalisis.asignarUsuario(this);
+    }
+
+    @OneToMany
+            (mappedBy = "usuario",
+            fetch = FetchType.LAZY,
+                    cascade = { CascadeType.PERSIST, CascadeType.MERGE },
+            orphanRemoval = false)
+    private Set<Resultado> listaResultado = new HashSet<>();
+
+    public void agregarResultado(Resultado resultado){
+        if(resultado==null){
+            throw new IllegalArgumentException("el resultado no puede ser null");
+        }
+        this.listaResultado.add(resultado);
+        resultado.asignarUsuario(this);
+    }
+
+    @OneToMany
+            (mappedBy = "usuario",
+            fetch = FetchType.LAZY,
+                    cascade = { CascadeType.PERSIST, CascadeType.MERGE },
+            orphanRemoval = false)
+    private Set<Reporte> listaReporte = new HashSet<>();
+
+    public void agregarReporte(Reporte reporte){
+        if(reporte == null){
+            throw new IllegalArgumentException("el reporte no puede ser null");
+        }
+        this.listaReporte.add(reporte);
+        reporte.asignarUsuario(this);
+    }
+
+    @OneToMany
+            (mappedBy = "usuario",
+            fetch = FetchType.LAZY,
+                    cascade = { CascadeType.PERSIST, CascadeType.MERGE },
+                    orphanRemoval = false
+            )
+    private Set<AuditLog> listaAuditoria = new HashSet<>();
+
+    public void agregarAuditoria(AuditLog auditLog){
+        if(auditLog==null){
+            throw  new IllegalArgumentException("la duiditoria noi puede ser nulla");
+        }
+        this.listaAuditoria.add(auditLog);
+        auditLog.asignarUsuario(this);
+
+    }
 
     // =========================
     // CONSTRUCTOR DE DOMINIO

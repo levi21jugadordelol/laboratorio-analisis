@@ -2,10 +2,15 @@ package com.laboratorio.analisis_clinico.analisis.domain;
 
 
 import com.laboratorio.analisis_clinico.analisis.domain.enume.EstadoAnalisis;
+import com.laboratorio.analisis_clinico.areaMedica.domain.AreaMedica;
+import com.laboratorio.analisis_clinico.formatoAnalisis.domain.FormatoAnalisis;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "analisis")
@@ -23,30 +28,57 @@ public class Analisis {
     @Column(length = 255)
     private String descripcion;
 
-    /**
-     * Referencia al área médica.
-     * A nivel de dominio: un análisis SIEMPRE pertenece a un área.
-     * La validación de existencia se hace fuera (use case / domain service).
-     */
-    @Column(nullable = false)
-    private Long areaMedicaId;
+
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 10)
     private EstadoAnalisis estadoAnalisis;
 
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @JoinColumn(name="area_medica_id",nullable = false)
+    private AreaMedica areaMedica;
+
+    public void setAreaMedica(AreaMedica areaMedica) {
+        if (this.areaMedica != null) {
+            throw new IllegalStateException(
+                    "El área médica no puede ser cambiada una vez asignada."
+            );
+        }
+        if (areaMedica == null) {
+            throw new IllegalArgumentException(
+                    "El análisis debe pertenecer a un área médica."
+            );
+        }
+        this.areaMedica = areaMedica;
+    }
+
+    @OneToMany
+            (mappedBy = "analisis",
+            fetch = FetchType.LAZY,
+            cascade = CascadeType.ALL,
+            orphanRemoval = true)
+    private Set<FormatoAnalisis> listFormatoAnalisis = new HashSet<>();
+
+    public void addFormatoAnalisis(FormatoAnalisis formatoAnalisis){
+        this.listFormatoAnalisis.add(formatoAnalisis);
+        formatoAnalisis.asignarAnalisis(this);
+    }
+
+
+
     // =========================
     // CONSTRUCTOR DE DOMINIO
     // =========================
 
-    public Analisis(String nombreAnalisis, String descripcion, Long areaMedicaId) {
+    public Analisis(String nombreAnalisis, String descripcion, AreaMedica areaMedica) {
         setNombreAnalisis(nombreAnalisis);
-        validarAreaMedica(areaMedicaId);
+        validarAreaMedica(areaMedica);
 
         this.descripcion = normalizar(descripcion);
-        this.areaMedicaId = areaMedicaId;
-        this.estadoAnalisis = EstadoAnalisis.ACTIVO; // regla de creación
+        this.areaMedica = areaMedica;
+        this.estadoAnalisis = EstadoAnalisis.ACTIVO;
     }
+
 
     // =========================
     // REGLAS DE DOMINIO
@@ -116,8 +148,8 @@ public class Analisis {
         this.nombreAnalisis = n;
     }
 
-    private void validarAreaMedica(Long areaMedicaId) {
-        if (areaMedicaId == null) {
+    private void validarAreaMedica(AreaMedica areaMedica) {
+        if (areaMedica == null) {
             throw new IllegalArgumentException(
                     "El análisis debe estar asociado a un área médica."
             );
@@ -127,5 +159,7 @@ public class Analisis {
     private String normalizar(String valor) {
         return (valor == null) ? null : valor.trim();
     }
+
+
 }
 
