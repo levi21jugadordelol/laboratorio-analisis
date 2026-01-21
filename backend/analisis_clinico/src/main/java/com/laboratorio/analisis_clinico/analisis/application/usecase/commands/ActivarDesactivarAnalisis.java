@@ -1,5 +1,6 @@
 package com.laboratorio.analisis_clinico.analisis.application.usecase.commands;
 
+import com.laboratorio.analisis_clinico.analisis.application.exception.AnalisisNotFoundException;
 import com.laboratorio.analisis_clinico.analisis.application.port.out.IAnalisisRepo;
 import com.laboratorio.analisis_clinico.analisis.domain.Analisis;
 
@@ -15,7 +16,7 @@ public class ActivarDesactivarAnalisis {
 
         Analisis analisis = analisisRepo.findById(analisisId)
                 .orElseThrow(() ->
-                        new IllegalArgumentException("El análisis no existe")
+                        new AnalisisNotFoundException("El análisis no existe")
                 );
 
         analisis.activar();
@@ -27,7 +28,7 @@ public class ActivarDesactivarAnalisis {
 
         Analisis analisis = analisisRepo.findById(analisisId)
                 .orElseThrow(() ->
-                        new IllegalArgumentException("El análisis no existe")
+                        new AnalisisNotFoundException("El análisis no existe")
                 );
 
         analisis.inactivar();

@@ -1,8 +1,10 @@
 package com.laboratorio.analisis_clinico.analisis.application.usecase.commands;
 
+import com.laboratorio.analisis_clinico.analisis.application.exception.AnalisisNotFoundException;
 import com.laboratorio.analisis_clinico.analisis.application.port.out.IAnalisisRepo;
 import com.laboratorio.analisis_clinico.analisis.domain.Analisis;
 import com.laboratorio.analisis_clinico.areaMedica.application.port.out.IAreaMedicaRepo;
+import com.laboratorio.analisis_clinico.areaMedica.domain.AreaMedica;
 
 public class CrearAnalisisClinico {
 
@@ -23,19 +25,19 @@ public class CrearAnalisisClinico {
             Long areaMedicaId
     ) {
 
-        if (!areaMedicaRepo.existsById(areaMedicaId)) {
-            throw new IllegalArgumentException(
-                    "El área médica no existe."
-            );
-        }
+        AreaMedica areaMedica = areaMedicaRepo.findById(areaMedicaId)
+                .orElseThrow(() ->
+                        new AnalisisNotFoundException(
+                                "El área médica no existe."
+                        )
+                );
 
         Analisis analisis = new Analisis(
                 nombreAnalisis,
                 descripcion,
-                areaMedicaId
+                areaMedica
         );
 
         analisisRepo.save(analisis);
     }
 }
-

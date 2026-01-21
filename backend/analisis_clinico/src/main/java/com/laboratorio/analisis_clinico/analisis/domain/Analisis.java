@@ -2,6 +2,7 @@ package com.laboratorio.analisis_clinico.analisis.domain;
 
 
 import com.laboratorio.analisis_clinico.analisis.domain.enume.EstadoAnalisis;
+import com.laboratorio.analisis_clinico.analisis.domain.exception.AnalisisDomainException;
 import com.laboratorio.analisis_clinico.areaMedica.domain.AreaMedica;
 import com.laboratorio.analisis_clinico.formatoAnalisis.domain.FormatoAnalisis;
 import jakarta.persistence.*;
@@ -40,12 +41,12 @@ public class Analisis {
 
     public void setAreaMedica(AreaMedica areaMedica) {
         if (this.areaMedica != null) {
-            throw new IllegalStateException(
+            throw new AnalisisDomainException(
                     "El área médica no puede ser cambiada una vez asignada."
             );
         }
         if (areaMedica == null) {
-            throw new IllegalArgumentException(
+            throw new AnalisisDomainException(
                     "El análisis debe pertenecer a un área médica."
             );
         }
@@ -91,7 +92,7 @@ public class Analisis {
 
     public void activar() {
         if (this.estadoAnalisis == EstadoAnalisis.ACTIVO) {
-            throw new IllegalStateException(
+            throw new AnalisisDomainException(
                     "El análisis ya se encuentra activo."
             );
         }
@@ -100,7 +101,7 @@ public class Analisis {
 
     public void inactivar() {
         if (this.estadoAnalisis == EstadoAnalisis.INACTIVO) {
-            throw new IllegalStateException(
+            throw new AnalisisDomainException(
                     "El análisis ya se encuentra inactivo."
             );
         }
@@ -134,13 +135,13 @@ public class Analisis {
         String n = normalizar(nombreAnalisis);
 
         if (n == null || n.isBlank()) {
-            throw new IllegalArgumentException(
+            throw new AnalisisDomainException(
                     "El nombre del análisis es obligatorio."
             );
         }
 
         if (n.length() > 150) {
-            throw new IllegalArgumentException(
+            throw new AnalisisDomainException(
                     "El nombre del análisis excede el máximo permitido (150)."
             );
         }
@@ -150,11 +151,12 @@ public class Analisis {
 
     private void validarAreaMedica(AreaMedica areaMedica) {
         if (areaMedica == null) {
-            throw new IllegalArgumentException(
+            throw new AnalisisDomainException(
                     "El análisis debe estar asociado a un área médica."
             );
         }
     }
+
 
     private String normalizar(String valor) {
         return (valor == null) ? null : valor.trim();
