@@ -1,5 +1,6 @@
 package com.laboratorio.analisis_clinico.areaMedica.application.usecase.commands;
 
+import com.laboratorio.analisis_clinico.areaMedica.application.exception.AreaMedicaNotFoundException;
 import com.laboratorio.analisis_clinico.areaMedica.application.port.out.IAreaMedicaRepo;
 import com.laboratorio.analisis_clinico.areaMedica.domain.AreaMedica;
 
@@ -15,7 +16,7 @@ public class ActivarDesactivarAreaMedica {
 
         AreaMedica areaMedica = areaMedicaRepo.findById(areaMedicaId)
                 .orElseThrow(() ->
-                        new IllegalArgumentException(
+                        new AreaMedicaNotFoundException(
                                 "El área médica no existe."
                         )
                 );
@@ -29,7 +30,7 @@ public class ActivarDesactivarAreaMedica {
 
         AreaMedica areaMedica = areaMedicaRepo.findById(areaMedicaId)
                 .orElseThrow(() ->
-                        new IllegalArgumentException(
+                        new AreaMedicaNotFoundException(
                                 "El área médica no existe."
                         )
                 );

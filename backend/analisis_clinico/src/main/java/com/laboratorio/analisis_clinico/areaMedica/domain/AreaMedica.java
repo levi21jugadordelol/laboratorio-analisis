@@ -2,6 +2,7 @@ package com.laboratorio.analisis_clinico.areaMedica.domain;
 
 import com.laboratorio.analisis_clinico.analisis.domain.Analisis;
 import com.laboratorio.analisis_clinico.areaMedica.domain.enume.EstadoAreaMedica;
+import com.laboratorio.analisis_clinico.areaMedica.domain.exception.AreaMedicaDomainException;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -69,14 +70,14 @@ public class AreaMedica {
 
     public void activar() {
         if (this.estadoAreaMedica == EstadoAreaMedica.ACTIVA) {
-            throw new IllegalStateException("El área médica ya está activa.");
+            throw new AreaMedicaDomainException("El área médica ya está activa.");
         }
         this.estadoAreaMedica = EstadoAreaMedica.ACTIVA;
     }
 
     public void desactivar() {
         if (this.estadoAreaMedica == EstadoAreaMedica.INACTIVA) {
-            throw new IllegalStateException("El área médica ya está inactiva.");
+            throw new AreaMedicaDomainException("El área médica ya está inactiva.");
         }
         this.estadoAreaMedica = EstadoAreaMedica.INACTIVA;
     }
@@ -105,11 +106,11 @@ public class AreaMedica {
         String n = normalizar(nombreArea);
 
         if (n == null || n.isBlank()) {
-            throw new IllegalArgumentException("El nombre del área médica es obligatorio.");
+            throw new AreaMedicaDomainException("El nombre del área médica es obligatorio.");
         }
         // Regla de dominio simple: el nombre debe ser razonable
         if (n.length() > 100) {
-            throw new IllegalArgumentException("El nombre del área médica excede el máximo permitido (100).");
+            throw new AreaMedicaDomainException("El nombre del área médica excede el máximo permitido (100).");
         }
 
         this.nombreArea = n;
