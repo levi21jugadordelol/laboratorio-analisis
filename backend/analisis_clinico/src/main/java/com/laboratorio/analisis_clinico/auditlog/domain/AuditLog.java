@@ -2,6 +2,7 @@ package com.laboratorio.analisis_clinico.auditlog.domain;
 
 
 import com.laboratorio.analisis_clinico.auditlog.domain.enume.ActionAuditlog;
+import com.laboratorio.analisis_clinico.auditlog.domain.exception.AuditlogDomainException;
 import com.laboratorio.analisis_clinico.usuario.domain.Usuario;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -55,10 +56,10 @@ public class AuditLog {
 
     public void asignarUsuario(Usuario usuario) {
         if(usuario == null){
-            throw new IllegalArgumentException("usuario no puede ser nullo");
+            throw new AuditlogDomainException("usuario no puede ser nullo");
         }
         if(this.usuario != null){
-            throw  new IllegalStateException("auditoria ya tiene usuario");
+            throw  new AuditlogDomainException("auditoria ya tiene usuario");
         }
         this.usuario =usuario;
     }
@@ -96,12 +97,12 @@ public class AuditLog {
 
     private void validarEntidad(String entityName, Long entityId) {
         if (entityName == null || entityName.trim().isEmpty()) {
-            throw new IllegalArgumentException(
+            throw new AuditlogDomainException(
                     "El nombre de la entidad auditada es obligatorio."
             );
         }
         if (entityId == null) {
-            throw new IllegalArgumentException(
+            throw new AuditlogDomainException(
                     "El identificador de la entidad auditada es obligatorio."
             );
         }
@@ -109,7 +110,7 @@ public class AuditLog {
 
     private void validarAccion(ActionAuditlog action) {
         if (action == null) {
-            throw new IllegalArgumentException(
+            throw new AuditlogDomainException(
                     "La acción auditada es obligatoria."
             );
         }
@@ -117,7 +118,7 @@ public class AuditLog {
 
     private void validarUsuario(Long createdByUsuario) {
         if (createdByUsuario == null) {
-            throw new IllegalArgumentException(
+            throw new AuditlogDomainException(
                     "El usuario responsable de la acción es obligatorio."
             );
         }
@@ -125,7 +126,7 @@ public class AuditLog {
 
     private void validarDiffSegunAccion(ActionAuditlog action, Map<String, Object> diffJson) {
         if (action == ActionAuditlog.UPDATE && (diffJson == null || diffJson.isEmpty())) {
-            throw new IllegalArgumentException(
+            throw new AuditlogDomainException(
                     "Una acción UPDATE debe registrar los cambios realizados."
             );
         }
@@ -134,7 +135,7 @@ public class AuditLog {
     private void validarMotivoSegunAccion(ActionAuditlog action, String reason) {
         if ((action == ActionAuditlog.DELETE || action == ActionAuditlog.VALIDATE)
                 && (reason == null || reason.trim().isEmpty())) {
-            throw new IllegalArgumentException(
+            throw new AuditlogDomainException(
                     "La acción " + action + " requiere un motivo."
             );
         }
