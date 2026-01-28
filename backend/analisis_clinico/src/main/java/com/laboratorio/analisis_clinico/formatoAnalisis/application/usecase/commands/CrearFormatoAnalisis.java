@@ -1,6 +1,8 @@
 package com.laboratorio.analisis_clinico.formatoAnalisis.application.usecase.commands;
 
+import com.laboratorio.analisis_clinico.analisis.application.exception.AnalisisNotFoundException;
 import com.laboratorio.analisis_clinico.analisis.application.port.out.IAnalisisRepo;
+import com.laboratorio.analisis_clinico.analisis.domain.Analisis;
 import com.laboratorio.analisis_clinico.formatoAnalisis.application.port.out.IFormatoAnalisisRepo;
 import com.laboratorio.analisis_clinico.formatoAnalisis.domain.FormatoAnalisis;
 
@@ -27,17 +29,21 @@ public class CrearFormatoAnalisis {
             Long usuarioId
     ) {
 
-        if (!analisisRepo.findById(analisisId).isPresent()) {
-            throw new IllegalArgumentException("El análisis no existe.");
-        }
+        Analisis analisis = analisisRepo.findById(analisisId)
+                .orElseThrow(() ->
+                        new AnalisisNotFoundException(
+                                "El análisis no existe."
+                        )
+                );
 
         FormatoAnalisis formato = new FormatoAnalisis(
-                analisisId,
                 nombreFormato,
                 descripcion,
                 estructura,
                 usuarioId
         );
+
+        formato.asignarAnalisis(analisis);
 
         formatoRepo.save(formato);
     }
