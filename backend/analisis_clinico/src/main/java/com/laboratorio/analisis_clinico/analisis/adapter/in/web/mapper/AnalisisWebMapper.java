@@ -12,17 +12,11 @@ import org.mapstruct.ReportingPolicy;
         unmappedTargetPolicy = ReportingPolicy.ERROR
 )
 public interface AnalisisWebMapper {
-    // ======================
-    // Request → Dominio
-    // ======================
-
-    @Mapping(target = "idAnalisis", ignore = true)
-    @Mapping(target = "estadoAnalisis", ignore = true)
-    Analisis toDomain(AnalisisDtoRequest request);
 
     // ======================
     // Dominio → Response
     // ======================
-
+    @Mapping(source = "areaMedica.idAreaMedica", target = "areaMedicaId")
     AnalisisDtoResponse toResponse(Analisis analisis);
 }
+
