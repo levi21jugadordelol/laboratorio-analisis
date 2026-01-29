@@ -1,5 +1,6 @@
 package com.laboratorio.analisis_clinico.orden.application.usecase.commands;
 
+import com.laboratorio.analisis_clinico.orden.application.exception.OrdenNotFoundException;
 import com.laboratorio.analisis_clinico.orden.application.port.out.IOrdenRepo;
 import com.laboratorio.analisis_clinico.orden.domain.Orden;
 
@@ -15,7 +16,7 @@ public class CancelarOrden {
 
         Orden orden = ordenRepo.findById(ordenId)
                 .orElseThrow(() ->
-                        new IllegalArgumentException("La orden no existe.")
+                        new OrdenNotFoundException("La orden no existe.")
                 );
 
         orden.anular();

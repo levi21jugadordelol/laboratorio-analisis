@@ -1,5 +1,6 @@
 package com.laboratorio.analisis_clinico.orden.application.usecase.Queries;
 
+import com.laboratorio.analisis_clinico.orden.application.exception.OrdenNotFoundException;
 import com.laboratorio.analisis_clinico.orden.application.port.out.IOrdenRepo;
 import com.laboratorio.analisis_clinico.orden.domain.Orden;
 
@@ -14,7 +15,7 @@ public class ConsultarOrden {
     public Orden ejecutar(Long ordenId) {
         return ordenRepo.findById(ordenId)
                 .orElseThrow(() ->
-                        new IllegalArgumentException(
+                        new OrdenNotFoundException(
                                 "La orden no existe."
                         )
                 );
