@@ -2,6 +2,7 @@ package com.laboratorio.analisis_clinico.ordenAnalisis.application.usecase.comma
 
 import com.laboratorio.analisis_clinico.formatoAnalisis.application.port.out.IFormatoAnalisisRepo;
 import com.laboratorio.analisis_clinico.formatoAnalisis.domain.FormatoAnalisis;
+import com.laboratorio.analisis_clinico.ordenAnalisis.application.exception.OrdenAnalisisNotFoundException;
 import com.laboratorio.analisis_clinico.ordenAnalisis.application.port.out.IOrdenAnalisisRepo;
 import com.laboratorio.analisis_clinico.ordenAnalisis.domain.OrdenAnalisis;
 import com.laboratorio.analisis_clinico.ordenAnalisis.domain.enume.Prioridad;
@@ -27,13 +28,13 @@ public class EditarAnalisisDeOrden {
 
         OrdenAnalisis ordenAnalisis = ordenAnalisisRepo.findById(ordenAnalisisId)
                 .orElseThrow(() ->
-                        new IllegalArgumentException("El análisis no existe.")
+                        new OrdenAnalisisNotFoundException("El análisis no existe.")
                 );
 
         if (nuevoFormatoId != null) {
             FormatoAnalisis nuevoFormato = formatoRepo.findById(nuevoFormatoId)
                     .orElseThrow(() ->
-                            new IllegalArgumentException("El formato no existe.")
+                            new OrdenAnalisisNotFoundException("El formato no existe.")
                     );
 
             ordenAnalisis.cambiarFormato(nuevoFormato);

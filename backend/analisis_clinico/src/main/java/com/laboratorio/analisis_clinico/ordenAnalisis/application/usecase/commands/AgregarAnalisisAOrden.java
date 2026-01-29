@@ -4,6 +4,7 @@ import com.laboratorio.analisis_clinico.formatoAnalisis.application.port.out.IFo
 import com.laboratorio.analisis_clinico.formatoAnalisis.domain.FormatoAnalisis;
 import com.laboratorio.analisis_clinico.orden.application.port.out.IOrdenRepo;
 import com.laboratorio.analisis_clinico.orden.domain.Orden;
+import com.laboratorio.analisis_clinico.ordenAnalisis.application.exception.OrdenAnalisisNotFoundException;
 import com.laboratorio.analisis_clinico.ordenAnalisis.application.port.out.IOrdenAnalisisRepo;
 import com.laboratorio.analisis_clinico.ordenAnalisis.domain.OrdenAnalisis;
 import com.laboratorio.analisis_clinico.ordenAnalisis.domain.enume.Prioridad;
@@ -38,10 +39,10 @@ public class AgregarAnalisisAOrden {
     ) {
 
         Orden orden = ordenRepo.findById(ordenId)
-                .orElseThrow(() -> new IllegalArgumentException("Orden no encontrada"));
+                .orElseThrow(() -> new OrdenAnalisisNotFoundException("Orden no encontrada"));
 
         FormatoAnalisis formato = formatoRepo.findById(formatoId)
-                .orElseThrow(() -> new IllegalArgumentException("Formato no encontrado"));
+                .orElseThrow(() -> new OrdenAnalisisNotFoundException("Formato no encontrado"));
 
         OrdenAnalisis nuevoAnalisis = domainService.agregarAnalisisAOrden(
                 orden,
