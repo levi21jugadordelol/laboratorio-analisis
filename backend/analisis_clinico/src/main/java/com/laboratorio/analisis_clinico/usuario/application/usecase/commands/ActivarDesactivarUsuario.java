@@ -1,5 +1,6 @@
 package com.laboratorio.analisis_clinico.usuario.application.usecase.commands;
 
+import com.laboratorio.analisis_clinico.usuario.application.exception.UsuarioNotFoundException;
 import com.laboratorio.analisis_clinico.usuario.application.port.out.IUsuarioRepo;
 import com.laboratorio.analisis_clinico.usuario.domain.Usuario;
 
@@ -26,7 +27,7 @@ public class ActivarDesactivarUsuario {
     private Usuario obtener(Long usuarioId) {
         return usuarioRepo.findById(usuarioId)
                 .orElseThrow(() ->
-                        new IllegalArgumentException("Usuario no encontrado.")
+                        new UsuarioNotFoundException("Usuario no encontrado.")
                 );
     }
 }

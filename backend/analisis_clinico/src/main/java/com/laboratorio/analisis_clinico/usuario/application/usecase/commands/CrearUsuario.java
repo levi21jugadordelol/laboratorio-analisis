@@ -1,5 +1,6 @@
 package com.laboratorio.analisis_clinico.usuario.application.usecase.commands;
 
+import com.laboratorio.analisis_clinico.usuario.application.exception.UsuarioNotFoundException;
 import com.laboratorio.analisis_clinico.usuario.application.port.out.IUsuarioRepo;
 import com.laboratorio.analisis_clinico.usuario.domain.Usuario;
 import com.laboratorio.analisis_clinico.usuario.domain.enume.RolUsuario;
@@ -18,7 +19,7 @@ public class CrearUsuario {
             RolUsuario rolUsuario
     ) {
         usuarioRepo.findByEmail(email).ifPresent(u -> {
-            throw new IllegalArgumentException("El email ya está registrado.");
+            throw new UsuarioNotFoundException("El email ya está registrado.");
         });
 
         Usuario usuario = new Usuario(
