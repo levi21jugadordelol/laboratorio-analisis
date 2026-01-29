@@ -1,5 +1,6 @@
 package com.laboratorio.analisis_clinico.paciente.application.usecase.commands;
 
+import com.laboratorio.analisis_clinico.paciente.application.exception.PacienteNotFoundException;
 import com.laboratorio.analisis_clinico.paciente.application.port.out.IPacienteRepo;
 import com.laboratorio.analisis_clinico.paciente.domain.Paciente;
 
@@ -22,7 +23,7 @@ public class EditarPaciente {
     ) {
 
         Paciente paciente = pacienteRepo.findById(pacienteId)
-                .orElseThrow(() -> new IllegalArgumentException("El paciente no existe."));
+                .orElseThrow(() -> new PacienteNotFoundException("El paciente no existe."));
 
         paciente.actualizarDatos(
                 nombre,

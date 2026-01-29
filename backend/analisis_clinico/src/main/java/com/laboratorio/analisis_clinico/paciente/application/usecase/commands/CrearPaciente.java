@@ -1,5 +1,6 @@
 package com.laboratorio.analisis_clinico.paciente.application.usecase.commands;
 
+import com.laboratorio.analisis_clinico.paciente.application.exception.PacienteNotFoundException;
 import com.laboratorio.analisis_clinico.paciente.application.port.out.IPacienteRepo;
 import com.laboratorio.analisis_clinico.paciente.domain.Paciente;
 import com.laboratorio.analisis_clinico.paciente.domain.enume.Sexo;
@@ -27,7 +28,7 @@ public class CrearPaciente {
     ) {
 
         pacienteRepo.findByDni(dni).ifPresent(p -> {
-            throw new IllegalArgumentException("Ya existe un paciente con ese DNI.");
+            throw new PacienteNotFoundException("Ya existe un paciente con ese DNI.");
         });
 
         Paciente paciente = new Paciente(
