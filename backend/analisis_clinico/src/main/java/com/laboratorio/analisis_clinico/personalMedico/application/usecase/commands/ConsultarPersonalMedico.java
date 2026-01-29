@@ -1,5 +1,6 @@
 package com.laboratorio.analisis_clinico.personalMedico.application.usecase.commands;
 
+import com.laboratorio.analisis_clinico.personalMedico.application.exception.PersonalNotFoundException;
 import com.laboratorio.analisis_clinico.personalMedico.application.port.out.IPersonalMedicoRepo;
 import com.laboratorio.analisis_clinico.personalMedico.domain.PersonalMedico;
 
@@ -13,7 +14,7 @@ public class ConsultarPersonalMedico {
 
     public PersonalMedico ejecutar(Long medicoId) {
         return repo.findById(medicoId)
-                .orElseThrow(() -> new IllegalArgumentException("Médico no encontrado."));
+                .orElseThrow(() -> new PersonalNotFoundException("Médico no encontrado."));
     }
 }
 

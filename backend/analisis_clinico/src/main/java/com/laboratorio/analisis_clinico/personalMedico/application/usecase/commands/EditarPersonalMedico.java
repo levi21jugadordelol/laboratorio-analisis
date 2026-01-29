@@ -1,5 +1,6 @@
 package com.laboratorio.analisis_clinico.personalMedico.application.usecase.commands;
 
+import com.laboratorio.analisis_clinico.personalMedico.application.exception.PersonalNotFoundException;
 import com.laboratorio.analisis_clinico.personalMedico.application.port.out.IPersonalMedicoRepo;
 import com.laboratorio.analisis_clinico.personalMedico.domain.PersonalMedico;
 
@@ -18,7 +19,7 @@ public class EditarPersonalMedico {
             String especialidad
     ) {
         PersonalMedico medico = repo.findById(medicoId)
-                .orElseThrow(() -> new IllegalArgumentException("El médico no existe."));
+                .orElseThrow(() -> new PersonalNotFoundException("El médico no existe."));
 
         medico.actualizarDatos(nombre, apellido, especialidad);
 
