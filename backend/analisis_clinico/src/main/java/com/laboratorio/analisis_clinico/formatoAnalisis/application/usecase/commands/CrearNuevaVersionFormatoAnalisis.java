@@ -1,5 +1,6 @@
 package com.laboratorio.analisis_clinico.formatoAnalisis.application.usecase.commands;
 
+import com.laboratorio.analisis_clinico.formatoAnalisis.application.exception.FormatoNotFoundException;
 import com.laboratorio.analisis_clinico.formatoAnalisis.application.port.out.IFormatoAnalisisRepo;
 import com.laboratorio.analisis_clinico.formatoAnalisis.domain.FormatoAnalisis;
 
@@ -21,7 +22,7 @@ public class CrearNuevaVersionFormatoAnalisis {
 
         FormatoAnalisis actual = formatoRepo.findById(formatoId)
                 .orElseThrow(() ->
-                        new IllegalArgumentException("El formato no existe.")
+                        new FormatoNotFoundException("El formato no existe.")
                 );
 
         FormatoAnalisis nuevaVersion =
