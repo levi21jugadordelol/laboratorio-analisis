@@ -1,5 +1,6 @@
 package com.laboratorio.analisis_clinico.resultado.application.usecase.commands;
 
+import com.laboratorio.analisis_clinico.resultado.application.exception.ResultadoNotFoundException;
 import com.laboratorio.analisis_clinico.resultado.application.port.out.IResultadoRepo;
 import com.laboratorio.analisis_clinico.resultado.domain.Resultado;
 import com.laboratorio.analisis_clinico.resultado.domain.service.ResultadoDomainService;
@@ -20,7 +21,7 @@ public class ValidarResultado {
     public void ejecutar(Long resultadoId) {
 
         Resultado resultado = resultadoRepo.findById(resultadoId)
-                .orElseThrow(() -> new IllegalArgumentException("Resultado no encontrado"));
+                .orElseThrow(() -> new ResultadoNotFoundException("Resultado no encontrado"));
 
         domainService.validarResultado(resultado);
 

@@ -1,5 +1,6 @@
 package com.laboratorio.analisis_clinico.resultado.application.usecase.commands;
 
+import com.laboratorio.analisis_clinico.resultado.application.exception.ResultadoNotFoundException;
 import com.laboratorio.analisis_clinico.resultado.application.port.out.IResultadoRepo;
 import com.laboratorio.analisis_clinico.resultado.domain.Resultado;
 import com.laboratorio.analisis_clinico.resultado.domain.service.ResultadoDomainService;
@@ -26,7 +27,7 @@ public class VersionarResultadosModificados {
     ) {
 
         Resultado resultadoActual = resultadoRepo.findById(resultadoId)
-                .orElseThrow(() -> new IllegalArgumentException("Resultado no encontrado"));
+                .orElseThrow(() -> new ResultadoNotFoundException("Resultado no encontrado"));
 
         Resultado nuevaVersion = domainService.corregirResultadoCreandoNuevaVersion(
                 resultadoActual,

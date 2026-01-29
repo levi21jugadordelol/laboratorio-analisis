@@ -1,5 +1,6 @@
 package com.laboratorio.analisis_clinico.resultado.application.usecase.Queries;
 
+import com.laboratorio.analisis_clinico.resultado.application.exception.ResultadoNotFoundException;
 import com.laboratorio.analisis_clinico.resultado.application.port.out.IResultadoRepo;
 import com.laboratorio.analisis_clinico.resultado.domain.Resultado;
 
@@ -14,7 +15,7 @@ public class ConsultarResultado {
     public Resultado ejecutar(Long resultadoId) {
         return resultadoRepo.findById(resultadoId)
                 .orElseThrow(() ->
-                        new IllegalArgumentException("Resultado no encontrado.")
+                        new ResultadoNotFoundException("Resultado no encontrado.")
                 );
     }
 }

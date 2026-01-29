@@ -2,6 +2,7 @@ package com.laboratorio.analisis_clinico.resultado.application.usecase.commands;
 
 import com.laboratorio.analisis_clinico.ordenAnalisis.application.port.out.IOrdenAnalisisRepo;
 import com.laboratorio.analisis_clinico.ordenAnalisis.domain.OrdenAnalisis;
+import com.laboratorio.analisis_clinico.resultado.application.exception.ResultadoNotFoundException;
 import com.laboratorio.analisis_clinico.resultado.application.port.out.IResultadoRepo;
 import com.laboratorio.analisis_clinico.resultado.domain.Resultado;
 import com.laboratorio.analisis_clinico.resultado.domain.service.ResultadoDomainService;
@@ -32,7 +33,7 @@ public class CrearResultado {
     ) {
 
         OrdenAnalisis ordenAnalisis = ordenAnalisisRepo.findById(ordenAnalisisId)
-                .orElseThrow(() -> new IllegalArgumentException("Análisis no encontrado"));
+                .orElseThrow(() -> new ResultadoNotFoundException("Análisis no encontrado"));
 
         Resultado resultado = domainService.registrarResultadoInicial(
                 ordenAnalisis,
